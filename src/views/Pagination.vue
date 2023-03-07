@@ -1,198 +1,125 @@
+<script setup>
+  import { ref, defineEmits, onMounted, watch } from 'vue'
+
+  const props = defineProps({
+    pageInput: {
+      type: Number,
+      default: 0
+    },
+    pageCount: {
+      type: Number,
+      default: 0
+    },
+    total: {
+      type: Number,
+      default: 0
+    },
+    showTong: {
+      type: Boolean,
+      default: true
+    }
+  })
+
+  const emit = defineEmits(['changePage'])
+  const currentPage = ref(0)
+  const currentPagePagination = ref(1)
+  const pageCountUse = ref(props.pageCount)
+  const totalUse = ref(props.total)
+  const listPage = ref([])
+  const type = ref('')
+
+  const prevPage = function () {
+    currentPage.value -= 1
+    currentPagePagination.value = currentPage.value
+  }
+  const nextPage = function () {
+    currentPage.value += 1
+    currentPagePagination.value = currentPage.value
+  }
+
+  onMounted (() => {
+    console.log('onMounted', props)
+    currentPage.value = props.pageInput
+    currentPagePagination.value = currentPage.value
+    let items = []
+    for (let i = 1; i <= props.pageCount; i++) {
+      let item = {
+        name: 'Trang'  +' '+ i,
+        value: i
+      }
+      items.push(item)
+    }
+    listPage.value = items
+  })
+
+  watch(pageCountUse, async (newPageCount, oldPageCount) => {
+    let items = []
+    for (let i = 1; i <= newPageCount; i++) {
+      let item = {
+        name: 'Trang' +' '+ i,
+        value: i
+      }
+      items.push(item)
+    }
+    listPage.value = items
+  })
+  watch(currentPagePagination, async (newPagePagination, oldPagePagination) => {
+    // console.log('currentPagePagination', newPagePagination)
+    currentPage.value = newPagePagination
+    emit('changePage', currentPage)
+  })
+</script>
+
 <template>
-<v-layout wrap class="mt-4" style="margin-bottom: 30px;">
-  <div v-if="showTong" class="flex" style="max-width: 200px;color: #00803D;font-weight: 500;">
-    <span>{{ $t('pagination.tongSo')}}:</span>&nbsp;
-    <span>{{total}}</span>
-  </div>
-  <div class="flex text-center">
-    <nav role="navigation" aria-label="Pagination Navigation" style="position: relative;">
-      <ul class="v-pagination theme--light">
-      <li>
-          <button @click="prevPage"  type="button" aria-label="Previous page" 
-          :class="currentPage == 0 ? 'v-pagination__navigation v-pagination__navigation--disabled' : 'v-pagination__navigation'">
-          <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--light"></i>
-          </button>
-      </li>
-      <li>
-          <button type="button" aria-current="true" class="v-pagination__item v-pagination__item--active primary">
-          {{currentPage + 1}} / {{pageCount}}
-          </button>
-      </li>
-      <li>
-          <button @click="nextPage" type="button" aria-label="Next page" 
-          :class="currentPage == pageCount -1 ? 'v-pagination__navigation v-pagination__navigation--disabled' : 'v-pagination__navigation'">
-          <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--light"></i>
-          </button>
-      </li>
-      </ul>
-    </nav>
-  </div>
-  <div class="flex" style="max-width:120px">
-    <v-autocomplete
-      class="autocomplete-form-input"
-      hide-no-data
-      :items="listPage"
-      v-model="currentPagePagination"
-      item-text="name"
-      item-value="value"
-      dense
-      outlined
-      hide-details="auto"
-      style=""
-    >
-    </v-autocomplete>
-  </div>
-</v-layout>
+  <v-row class="mt-0" style="margin-bottom: 30px;align-items: center;">
+    <v-col v-if="showTong" class="flex" style="max-width: 200px;color: #00803D;font-weight: 500;">
+      <span>Tổng số:</span>&nbsp;
+      <span>{{totalUse}}</span>
+    </v-col>
+
+    <v-col >
+      <div class="flex text-center">
+        <nav role="navigation" aria-label="Pagination Navigation" style="position: relative;">
+          <ul class="v-pagination theme--light">
+          <li>
+              <button @click="prevPage"  type="button" aria-label="Previous page"  style="width: 32px;height: 32px;"
+              :class="currentPage == 1 ? 'v-pagination__navigation v-pagination__navigation--disabled' : 'v-pagination__navigation'">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--light"></i>
+              </button>
+          </li>
+          <li>
+              <button type="button" aria-current="true" class="bg-success v-pagination__item v-pagination__item--active primary">
+              {{currentPage}} / {{pageCountUse}}
+              </button>
+          </li>
+          <li>
+              <button @click="nextPage" type="button" aria-label="Next page" style="width: 32px;height: 32px;"
+              :class="currentPage == pageCountUse ? 'v-pagination__navigation v-pagination__navigation--disabled' : 'v-pagination__navigation'">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--light"></i>
+              </button>
+          </li>
+          </ul>
+        </nav>
+      </div>
+    </v-col>
+    <v-col style="max-width:150px">
+      <v-autocomplete
+        class="input-form"
+        hide-no-data
+        :items="listPage"
+        v-model="currentPagePagination"
+        item-title="name"
+        item-value="value"
+        dense
+        outlined
+        hide-details="auto"
+        style=""
+      >
+      </v-autocomplete>
+    </v-col>
+  </v-row>
 </template>
 
-<script>
-import i18n from '@/plugins/i18n'
-
-  export default {
-    name: 'Search',
-    props: {
-        pageInput: {
-            type: Number,
-            default: 0
-        },
-        pageCount: {
-            type: Number,
-            default: 0
-        },
-        total: {
-            type: Number,
-            default: 0
-        },
-        showTong: {
-          type: Boolean,
-          default: true
-        }
-    },
-    data () {
-      return {
-        currentPage: 0,
-        currentPagePagination: 1,
-        listPage: [],
-        type: ''
-      }
-    },
-    created () {
-      let vm = this
-      vm.currentPage = vm.pageInput
-      vm.currentPagePagination = vm.currentPage + 1
-      if (i18n.locale == 'en') {
-        for (let i = 1; i <= vm.pageCount; i++) {
-          let item = {
-            name: 'Page'  +' '+ i,
-            value: i
-          }
-          vm.listPage.push(item)
-        }
-      } 
-      else {
-        for (let i = 1; i <= vm.pageCount; i++) {
-          let item = {
-            name: 'Trang'  +' '+ i,
-            value: i
-          }
-        vm.listPage.push(item)
-        }
-      }
-    },
-    computed: {
-      activeChangeLang () {
-        let vm = this
-        return vm.$store.getters.activeChangeLang
-      },
-      breakpointName () {
-        let vm = this
-        return vm.$store.getters.getBreakpointName
-      },
-    },
-    watch: {
-      activeChangeLang (val) {
-        let vm = this
-        if (i18n.locale == 'en') {
-            for (let i = 1; i <= vm.pageCount; i++) {
-              let item = {
-                name: 'Page' +' '+ i,
-                value: i
-              }
-              vm.listPage = []
-              vm.listPage.push(item)
-            }
-        }
-        else {
-            for (let i = 1; i <= vm.pageCount; i++) {
-              let item = {
-                name: 'Trang'  +' '+ i,
-                value: i
-              }
-            vm.listPage = []
-            vm.listPage.push(item)
-            }
-        }
-       
-      },
-      pageInput () {
-          // this.currentPage = val
-          // this.currentPagePagination = this.currentPage + 1
-      },
-      pageCount (val) {
-        let vm = this
-        setTimeout(function () {
-          if (i18n.locale == 'en') {
-            for (let i = 1; i <= vm.pageCount; i++) {
-              let item = {
-                name: 'Page' +' '+ i,
-                value: i
-              }
-              vm.listPage.push(item)
-            }
-          } 
-          else if (i18n.locale == 'vi') {
-            for (let i = 1; i <= vm.pageCount; i++) {
-              let item = {
-                name: 'Trang' +' '+ i,
-                value: i
-              }
-            vm.listPage.push(item)
-            }
-          }
-        }, 200)
-        
-      },
-      currentPagePagination (val) {
-        let vm = this
-        vm.currentPage = val -1
-        vm.$emit('tiny:change-page', {
-          page: vm.currentPage
-        })
-      },
-    },
-    methods: {
-      prevPage () {
-        let vm = this
-        vm.currentPage -= 1
-        vm.currentPagePagination = vm.currentPage + 1
-        vm.$emit('tiny:change-page', {
-          page: vm.currentPage
-        })
-      },
-      nextPage () {
-        let vm = this
-        vm.currentPage += 1
-        vm.currentPagePagination = vm.currentPage + 1
-        vm.$emit('tiny:change-page', {
-          page: vm.currentPage
-        })
-      },
-    },
-  }
-</script>
-<style lang="css" scoped>
-  .v-data-table-header-mobile {
-    display: none !important;
-  }
+<style>
 </style>
 

@@ -111,14 +111,15 @@
         <div class="wrap-form px-4 py-3" v-if="!signed">
           <div>
             <v-form ref="form" v-model="valid" lazy-validation class="">
-              <v-row class="action-title my-0" align="center" style="text-align: center;
+              <v-row class="action-title my-0 mb-2" align="center" style="text-align: center;
                 font-size: 22px;
                 font-family: 'Roboto Slab';
                 color: #fff;
-                font-weight: 700;">
+                font-weight: 700;"
+              >
                 <v-col class="py-0">ĐĂNG NHẬP</v-col>
               </v-row>
-              <v-row align="center" class="my-0">
+              <v-row class="my-0">
                 <v-col class="py-0">
                   <div style="color: white;" class="mb-2">Tên đăng nhập</div>
                   <v-text-field

@@ -43,22 +43,17 @@
 
 <style lang="scss">
   main.v-main {
-    padding-top: 120px
+    padding-top: 120px !important
   }
   @media screen and (max-width: 426px){
     
   }
-  @media screen and (max-width: 769px){
+  @media screen and (max-width: 1024px){
     main.v-main {
       padding-top: 75px !important
     }
     .wrap-content-page {
-      padding-bottom: 70px !important
-    }
-  }
-  @media screen and (max-width: 1025px){
-    .wrap-content-page {
-      padding-bottom: 70px !important
+      padding-bottom: 75px !important
     }
   }
 </style>

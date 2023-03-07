@@ -2147,10 +2147,10 @@
   dependencies:
     "vue" "^3.0.0"
 
-"vuetify@^3.1.5":
-  "integrity" "sha512-6DJYNuKrbxuL+MThmj+VbtvK9X3mY+s8Rqj1juj4RyeLSIAhE3byZf8Bo2/GxrU5Jv3zR07LZdpiq4wIl0ONzA=="
-  "resolved" "https://registry.npmjs.org/vuetify/-/vuetify-3.1.5.tgz"
-  "version" "3.1.5"
+"vuetify@^3.1.7":
+  "integrity" "sha512-1hDQ4ISszEKP9S9nOhUNsv3rZ4Zr1UYn4+G4PIlcS9b16Jy4/VS2KDrLyTG8Shnv9enizg31iF5iVnlj96OEeA=="
+  "resolved" "https://registry.npmjs.org/vuetify/-/vuetify-3.1.7.tgz"
+  "version" "3.1.7"
 
 "w3c-xmlserializer@^4.0.0":
   "integrity" "sha512-d+BFHzbiCx6zGfz0HyQ6Rg69w9k19nviJspaj4yNscGjrHu94sVP+aRm75yEbCh+r2/yR+7q6hux9LVtbuTGBw=="

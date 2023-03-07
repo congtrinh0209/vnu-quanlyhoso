@@ -16,6 +16,7 @@ toastr.options = {
   "positionClass": "toast-top-center"
 }
 import { createVuetify } from 'vuetify'
+import * as labs from 'vuetify/labs/components'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, fa } from 'vuetify/iconsets/fa'
@@ -24,15 +25,12 @@ import { mdi } from 'vuetify/iconsets/mdi'
 import { useCookies } from "vue3-cookies"
 const { cookies } = useCookies()
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components, ...labs
+  },
   directives,
   icons: {
-    defaultSet: 'fa',
-    aliases,
-    sets: {
-      fa,
-      mdi
-    }
+    defaultSet: 'mdi'
   },
   theme: {
     themes: {

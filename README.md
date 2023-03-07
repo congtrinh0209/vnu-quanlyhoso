@@ -1,6 +1,10 @@
-# vue-project
+# VNU-QUANLYHOSO
 
-This template should help get you started developing with Vue 3 in Vite.
+Developing with Vue 3 in Vite.
+- VueJS 3
+- Vuetify 3
+- VueRouter 4
+- Pinia
 
 ## Recommended IDE Setup
 
