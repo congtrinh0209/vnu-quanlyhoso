@@ -2,7 +2,9 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import $ from 'jquery'
-export const authorizationStore = defineStore('authorization', {
+import { useCookies } from 'vue3-cookies'
+const { cookies } = useCookies()
+export const timKiemStore = defineStore('timkiemnangcao', {
   state: () => ({
     baseURL: import.meta.env.VITE_APP_PATH_API
   }),
@@ -10,26 +12,29 @@ export const authorizationStore = defineStore('authorization', {
     userInfo: (state) => state.userInfo,
   },
   actions: {
-    async login (filter) {
-      let settings = {
-        "url": `${this.baseURL}/flex/oauth2/token`,
-        "method": "POST",
-        "headers": {
-          'Authorization': 'Basic ZmxleDpzc28=',
-          'secret': 'f5gDd1JLB0vq6VVBvzEbltq6iVuaddvk',
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        "data": filter.data
-      };
-      
-      let data = await $.ajax(settings)
-      return data
+    async loadDataSource (filter) {
+      let apiGet = filter.api
+			if (filter.api.indexOf('http') < 0) {
+				apiGet = this.baseURL + filter.api
+			}
+			let settings = {
+				"url": apiGet,
+				"method": "GET",
+				"headers": {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + cookies.get('Token')
+				},
+				"data": {}
+			};
+			
+			let data = await $.ajax(settings)
+			return data
     },
     async getThongTinUserDangNhap (filter) {
       let settings = {
         method: 'get',
-        url: `${this.baseURL}/v1/datasharing/canbo/token`,
+        url: state.apiSso + '/v1/datasharing/canbo/token',
         headers: { 
           'Accept': 'application/json', 
           'Content-Type': 'application/json',

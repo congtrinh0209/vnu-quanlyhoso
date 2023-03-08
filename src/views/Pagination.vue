@@ -38,7 +38,7 @@
   }
 
   onMounted (() => {
-    console.log('onMounted', props)
+    // console.log('onMounted', props)
     currentPage.value = props.pageInput
     currentPagePagination.value = currentPage.value
     let items = []

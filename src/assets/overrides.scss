@@ -478,14 +478,17 @@ body .no__hidden_class.row-header .background-triangle-big {
   text-align: right;
 }
 button.v-btn--size-small {
-  height: 32px !important;
+  height: 30px !important;
 }
 button.v-btn--size-small .v-btn__content {
   font-size: 1rem;
   text-transform: none;
 }
 button.v-btn--size-small .v-icon {
-  font-size: 20px;
+  font-size: 18px;
+}
+.v-card--flat {
+  box-shadow: none !important
 }
 .v-data-table-header {
   background: #E3F1FB;

@@ -3,6 +3,7 @@
   import { ref, reactive, computed, onMounted } from 'vue'
   import { useAppStore } from '@/stores/global.js'
   import pagination from '../views/Pagination.vue'
+  import TimKiemNangCao from './TimKiemNangCao.vue'
   const appStore = useAppStore()
   const { cookies } = useCookies()
 
@@ -14,6 +15,59 @@
   const model2 = ref('')
   const dialog = ref(false)
   const advanceSearch = ref(false)
+  const mauTimKiem = reactive([
+    {
+      "name": "tenChienluoc",
+      "title": "Tên chiến lược",
+      "type": "textfield",
+      "fieldClass": "v-col-xs-12 v-col-4",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": ""
+    },
+    {
+      "name": "hienTrang",
+      "title": "Tình trạng",
+      "type": "select",
+      "multiple": false,
+      "itemText": "tenMuc",
+      "itemValue": "maMuc",
+      "fieldClass": "v-col-xs-12 v-col-4",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": [],
+      "autoEvent": "",
+      "api": "/v1/datasharing/dulieudanhmuc/filter?page=0&size=10000&danhMuc_maDanhMuc=HIENTRANGVANBAN",
+      "responseDataApi": "content"
+    },
+    {
+      "name": "ngayBanHanh",
+      "title": "Thời gian ban hành",
+      "type": "date",
+      "fieldClass": "v-col-xs-12 v-col-4",
+      "placeHolder": "ddmmyyyy, dd/mm/yyyy",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": ""
+    },
+    {
+      "name": "tomTat",
+      "title": "Tóm tắt nội dung",
+      "type": "textarea",
+      "fieldClass": "v-col-12",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": "",
+      "rows": 3
+    }
+  ])
+  const advanceSearchReference = ref(null)
   const dataSource = reactive([
     {name: 'Giá trị 1', value: 1},
     {name: 'Giá trị 2', value: 2},
@@ -209,6 +263,17 @@
       loading.value = false
     }, 300)
   }
+  const showAdvanceSearch = function () {
+    advanceSearch.value = !advanceSearch.value
+    setTimeout(function () {
+      if (advanceSearch.value) {
+        advanceSearchReference.value.initForm()
+      }
+    }, 100)
+  }
+  const submitAdvanceSearch = function (dataSearch) {
+    console.log('dataSearch', dataSearch)
+  }
   const changePage = function (page) {
     console.log('page_pagination', page.value)
   }
@@ -232,7 +297,7 @@
     dialog.value = true
   }
   onMounted(() => {
-    
+
   })
 </script>
 <template>
@@ -246,19 +311,20 @@
       </v-col>
       <v-spacer></v-spacer>
       
-      <v-col class="d-flex align-center justify-end py-0 px-0" style="max-width: 200px;">
+      <v-col class="d-flex align-center justify-end py-0 px-0" style="max-width: 200px;margin-top: 3px;">
         <v-btn
           size="small"
           color="success"
           :prepend-icon="!advanceSearch ? 'mdi-filter-variant-plus' : 'mdi-filter-variant'"
-          @click.stop="advanceSearch = !advanceSearch" class="mx-0" style="float: right"
+          @click.stop="showAdvanceSearch" class="mx-0" style="float: right"
         >
           Tìm kiếm nâng cao
         </v-btn>
       </v-col>
     </v-row>
-
-
+    <div v-if="advanceSearch">
+      <TimKiemNangCao ref="advanceSearchReference" :mauNhap="mauTimKiem" @submitSearch="submitAdvanceSearch"></TimKiemNangCao>
+    </div>
     <v-form
       class="pa-5 px-2"
       ref="formRef"
@@ -292,23 +358,6 @@
           <div class="titleText mb-2">
             <span class="text-label">Tiêu đề </span><span class="title-required">(*)</span>
           </div>
-          <v-textarea
-            class="input-form"
-            v-model="model1"
-            placeholder="Nhập giá trị"
-            dense
-            hide-details="auto"
-            clearable
-            :rows="3"
-            :rules="[rules.required]"
-            required
-          ></v-textarea>
-        </v-col>
-
-        <v-col cols="12" sm="6">
-          <div class="titleText mb-2">
-            <span class="text-label">Tiêu đề </span><span class="title-required">(*)</span>
-          </div>
           <v-autocomplete
             class="input-form"
             hide-no-data
@@ -326,6 +375,24 @@
           >
           </v-autocomplete>
         </v-col>
+
+        <v-col cols="12" sm="6">
+          <div class="titleText mb-2">
+            <span class="text-label">Tiêu đề </span><span class="title-required">(*)</span>
+          </div>
+          <v-textarea
+            class="input-form"
+            v-model="model1"
+            placeholder="Nhập giá trị"
+            dense
+            hide-details="auto"
+            clearable
+            :rows="3"
+            :rules="[rules.required]"
+            required
+          ></v-textarea>
+        </v-col>
+
       </v-row>
     </v-form>
     <!-- button -->
@@ -454,7 +521,7 @@
             </tr>
           </template>
         </v-data-table>
-        <pagination :pageInput="page" :pageCount="pageCount" :total="total" @change-page="changePage" style="margin-bottom: 50px;"></pagination>
+        <pagination :pageInput="page" :pageCount="pageCount" :total="total" @changePage="changePage" style="margin-bottom: 50px;"></pagination>
       </v-col>
     </v-row>
     <!-- dialog -->
