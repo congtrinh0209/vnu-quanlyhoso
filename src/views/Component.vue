@@ -4,6 +4,7 @@
   import { useAppStore } from '@/stores/global.js'
   import pagination from '../views/Pagination.vue'
   import TimKiemNangCao from './TimKiemNangCao.vue'
+  import FormCRUD from './FormCRUD.vue'
   const appStore = useAppStore()
   const { cookies } = useCookies()
 
@@ -67,7 +68,72 @@
       "rows": 3
     }
   ])
+  const mauFormCrud = reactive([
+    {
+      "name": "tenChienluoc",
+      "title": "Tên chiến lược",
+      "type": "textfield",
+      "fieldClass": "v-col-xs-12 v-col-4",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": "",
+      "required": true,
+      "rules": [],
+      "readonly": false
+    },
+    {
+      "name": "hienTrang",
+      "title": "Tình trạng",
+      "type": "select",
+      "multiple": false,
+      "itemText": "tenMuc",
+      "itemValue": "maMuc",
+      "fieldClass": "v-col-xs-12 v-col-4",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": [],
+      "autoEvent": "",
+      "api": "/v1/datasharing/dulieudanhmuc/filter?page=0&size=10000&danhMuc_maDanhMuc=HIENTRANGVANBAN",
+      "responseDataApi": "content",
+      "required": true,
+      "rules": [],
+      "readonly": false
+    },
+    {
+      "name": "ngayBanHanh",
+      "title": "Thời gian ban hành",
+      "type": "date",
+      "fieldClass": "v-col-xs-12 v-col-4",
+      "placeHolder": "ddmmyyyy, dd/mm/yyyy",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": "",
+      "required": true,
+      "rules": [],
+      "readonly": false
+    },
+    {
+      "name": "tomTat",
+      "title": "Tóm tắt nội dung",
+      "type": "textarea",
+      "fieldClass": "v-col-12",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": "",
+      "rows": 3,
+      "required": true,
+      "rules": [],
+      "readonly": false
+    }
+  ])
   const advanceSearchReference = ref(null)
+  const crudFormReference = ref(null)
   const dataSource = reactive([
     {name: 'Giá trị 1', value: 1},
     {name: 'Giá trị 2', value: 2},
@@ -274,6 +340,14 @@
   const submitAdvanceSearch = function (dataSearch) {
     console.log('dataSearch', dataSearch)
   }
+  const submitFormCrud = async function () {
+    let valid = await crudFormReference.value.validateForm()
+    console.log('validForm', valid)
+    if (valid) {
+      let dataOutput = crudFormReference.value.submit()
+      console.log('dataOutputCrud', dataOutput)
+    }
+  }
   const changePage = function (page) {
     console.log('page_pagination', page.value)
   }
@@ -295,6 +369,9 @@
   }
   const showDialog = function () {
     dialog.value = true
+    setTimeout(function () {
+      crudFormReference.value.initForm()
+    }, 100)
   }
   onMounted(() => {
 
@@ -545,53 +622,7 @@
         </v-toolbar>
         <v-card-text class="mt-2 px-3">
           <!-- Content dialog -->
-          <v-form
-            ref="formRef"
-            lazy-validation
-            v-model="validForm"
-          >
-            <v-row>
-              <v-col cols="12" sm="6">
-                <div class="titleText mb-2">
-                  <span class="text-label">Tiêu đề </span><span class="title-required">(*)</span>
-                </div>
-                <v-text-field
-                  :rules="[rules.required]"
-                  v-model="model1"
-                  append-inner-icon="mdi-magnify"
-                  prepend-inner-icon="mdi-account"
-                  @click:append-inner="eventClick"
-                  @click:prepend-inner="eventClick"
-                  variant="solo"
-                  :disabled="false"
-                  :readonly="false"
-                  placeholder="Nhập giá trị ..."
-                  dense
-                  hide-details="auto"
-                  required
-                  class="input-form"
-                  clearable
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <div class="titleText mb-2">
-                  <span class="text-label">Tiêu đề </span><span class="title-required">(*)</span>
-                </div>
-                <v-textarea
-                  class="input-form"
-                  v-model="model1"
-                  placeholder="Nhập giá trị"
-                  variant="solo"
-                  dense
-                  hide-details="auto"
-                  clearable
-                  :rows="3"
-                  :rules="[rules.required]"
-                ></v-textarea>
-              </v-col>
-            </v-row>
-          </v-form>
+          <FormCRUD ref="crudFormReference" :mauNhap="mauFormCrud"></FormCRUD>
         </v-card-text>
         <v-card-actions class="justify-end pb-3 px-3">
           <v-btn
@@ -611,7 +642,7 @@
             :disabled="loading"
             color="success"
             prepend-icon="mdi-content-save"
-            @click.stop="dialog = false"
+            @click.stop="submitFormCrud"
           >
             Thêm mới
           </v-btn>

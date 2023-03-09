@@ -2,9 +2,9 @@
 	import { useCookies } from 'vue3-cookies'
   import { ref, reactive, computed, onMounted } from 'vue'
   import { useAppStore } from '@/stores/global.js'
-	import { timKiemStore } from '@/stores/timkiemnangcao.js'
+	import { useCrudStore } from '@/stores/formcrud.js'
   const appStore = useAppStore()
-	const timkiemnangcao = timKiemStore()
+	const crud = useCrudStore()
   const { cookies } = useCookies()
 	const props = defineProps({
     mauNhap: {
@@ -16,14 +16,15 @@
       default: {}
     }
   })
-	const mauNhapSearch = reactive(props.mauNhap)
-  const dataInputSearch = reactive(props.dataInput)
+	const mauNhapForm = reactive(props.mauNhap)
+  const dataInputForm = reactive(props.dataInput)
 	const data = reactive({})
-  const emit = defineEmits(['submitSearch'])
-	const submitForm = function (type) {
+  const validForm = ref(false)
+  const emit = defineEmits(['submitForm'])
+	const submit = function (type) {
 		let dataOutput = Object.assign({}, data)
-		for (let key in mauNhapSearch) {
-			let itemConfig = mauNhapSearch[key]
+		for (let key in mauNhapForm) {
+			let itemConfig = mauNhapForm[key]
 			if (itemConfig.type == 'date' && dataOutput[itemConfig['name']]) {
 				dataOutput[itemConfig['name']] = convertDate(dataOutput[itemConfig['name']])
 			}
@@ -41,23 +42,23 @@
 				dataOutput[itemConfig['name']] = dataArray
 			}
 		}
-		// console.log('dataFormOutput-2', dataOutput)
-		emit('submitSearch', dataOutput)
+		console.log('dataFormOutput-2', dataOutput)
+    return dataOutput
 	}
 	const initForm = function (type) {
-		for (let key in mauNhapSearch) {
-			let itemData = mauNhapSearch[key]
+		for (let key in mauNhapForm) {
+			let itemData = mauNhapForm[key]
 			if (itemData['type'] === 'select' && itemData.hasOwnProperty('api') && itemData['api'] 
-				&& (!mauNhapSearch[key]['dataSource'] ||mauNhapSearch[key]['dataSource'].length == 0)
+				&& (!mauNhapForm[key]['dataSource'] ||mauNhapForm[key]['dataSource'].length == 0)
 			) {
-				timkiemnangcao.loadDataSource(itemData).then(function(result) {
+				crud.loadDataSource(itemData).then(function(result) {
 					let resultData = itemData['responseDataApi'] ? result[itemData['responseDataApi']] : result
-					mauNhapSearch[key]['dataSource'] = resultData
+					mauNhapForm[key]['dataSource'] = resultData
 				}).catch(function(){})
 			}
 		}
-		if (type === 'update' && dataInputSearch) {
-			data = dataInputSearch
+		if (type === 'update' && dataInputForm) {
+			data = dataInputForm
 			for (let key in data) {
 				let filter = data[key]['dataSource'].find(function (item) {
 					return item.name == key
@@ -72,10 +73,10 @@
 					data[key] = Array.isArray(data[key]) ? data[key][0] : data[key]
 				}
 			}
-			// this.$refs.formTimKiem.resetValidation()
+			this.$refs.formCrud.resetValidation()
 		} else {
-			// this.$refs.formTimKiem.reset()
-			// this.$refs.formTimKiem.resetValidation()
+			this.$refs.formCrud.reset()
+			this.$refs.formCrud.resetValidation()
 		}
 	}
 	const formatBirthDate = function (name) {
@@ -110,16 +111,22 @@
 		return (new Date(ddd)).toISOString()
 	}
 	const resetForm = function () {
-		let vm = this
-		vm.$refs.formTimKiem.reset()
-		vm.$refs.formTimKiem.resetValidation()
+		this.$refs.formCrud.reset()
+		this.$refs.formCrud.resetValidation()
 	}
+  const resetFormValidation = function () {
+		this.$refs.formCrud.resetValidation()
+	}
+  const validateForm = async function () {
+    const { valid } = await this.$refs.formCrud.validate()
+    return valid
+  }
 	const goBack = function () {
 		window.history.back()
 	}
 
 	defineExpose({
-		initForm, data
+		initForm, resetForm, resetFormValidation, validateForm, data
 	})
 </script>
 
@@ -129,14 +136,14 @@
 		flat
 	>
 		<v-form
-			ref="formTimKiem"
+			ref="formCrud"
 			lazy-validation
-			class="py-2"
-			style="border: 1px solid #cbc8c8;border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;border-top: 0px;"
+			class="py-0"
+			v-model="validForm"
 		>
-			<v-row class="mx-0 my-0">
+			<v-row class="my-0">
 				<v-col v-for="(item, index) in mauNhap" v-bind:key="index" :class="item['fieldClass']" class="py-0 mb-2">
-					<label>{{item.title}} </label>
+					<label>{{item.title}} <span style="color: red" v-if="item.required">(*)</span></label>
 					<v-text-field
 						v-if="item.type === 'textfield'"
 						class="flex input-form"
@@ -145,7 +152,10 @@
 						solo
 						dense
 						hide-details="auto"
-						clearable
+            :clearable="!item['readonly']"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
+            :readonly="item['readonly']"
 					></v-text-field>
 					<v-text-field
 						v-if="item.type === 'number'"
@@ -155,8 +165,12 @@
 						solo
 						dense
 						hide-details="auto"
-						clearable
+						:clearable="!item['readonly']"
 						type="number"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
+            @input="!readonly && item.hasOwnProperty('keyCalculator') ? triggerCalculator(item.keyCalculator) : ''"
+            :readonly="item['readonly']"
 					></v-text-field>
 					<v-textarea
 						v-if="item.type === 'textarea'"
@@ -166,8 +180,11 @@
 						solo
 						dense
 						hide-details="auto"
-						clearable
+						:clearable="!item['readonly']"
 						:rows="item.hasOwnProperty('rows') ? item.rows : 3"
+            :readonly="item['readonly']"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
 					></v-textarea>
 
 					<v-text-field
@@ -181,7 +198,9 @@
 						solo
 						dense
 						hide-details="auto"
-						clearable
+						:clearable="!item['readonly']"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
 					></v-text-field>
 					<v-text-field
 						v-if="item.type === 'money'"
@@ -193,7 +212,9 @@
 						solo
 						dense
 						hide-details="auto"
-						clearable
+						:clearable="!item['readonly']"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
 					></v-text-field>
 					<v-autocomplete
 						v-if="item.type === 'select' && !item.api"
@@ -208,7 +229,9 @@
 						solo
 						hide-details="auto"
 						return-object
-						clearable
+						:clearable="!item['readonly']"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
 					>
 					</v-autocomplete>
 					<v-autocomplete
@@ -224,21 +247,13 @@
 						solo
 						hide-details="auto"
 						return-object
-						clearable
+						:clearable="!item['readonly']"
+            :required="item.required"
+            :rules="item.required ? [v => (v !== '' && v !== null && v !== undefined) || 'Thông tin bắt buộc'] : []"
 					>
 					</v-autocomplete>
 				</v-col>
-				<v-col class="py-2 px-3">
-					<v-btn
-						size="small"
-						color="success"
-						prepend-icon="mdi-magnify"
-						class="mx-0" style="float: right"
-						@click.stop="submitForm"
-					>
-						Tìm kiếm
-					</v-btn>
-				</v-col>
+				
 			</v-row>
 		</v-form>
 	</v-card>

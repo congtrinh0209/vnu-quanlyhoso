@@ -4,12 +4,12 @@ import axios from 'axios'
 import $ from 'jquery'
 import { useCookies } from 'vue3-cookies'
 const { cookies } = useCookies()
-export const timKiemStore = defineStore('timkiemnangcao', {
+export const useCrudStore = defineStore('crudStore', {
   state: () => ({
     baseURL: import.meta.env.VITE_APP_PATH_API
   }),
   getters: {
-    userInfo: (state) => state.userInfo,
+    
   },
   actions: {
     async loadDataSource (filter) {
