@@ -209,11 +209,11 @@ table td {
   background: #ffffff !important;
 }
 .input-form:not(.v-textarea):not(.v-autocomplete) .v-field {
-  height: 34px;
+  height: 32px;
 }
 .input-form .v-input__control,
 .input-form .v-input__slot {
-  min-height: 34px !important;
+  min-height: 32px !important;
 }
 .text-label {
   font-weight: 600;
@@ -253,11 +253,11 @@ table td {
   border-color: #08ba5d;
 }
 .input-form .v-field__clearable {
-  padding-top: 3px;
+  padding-top: 1px;
   height: 24px;
 }
 .input-form .v-field__prepend-inner, .input-form .v-field__append-inner {
-  padding-top: 2px;
+  padding-top: 1px;
   height: 24px;
 }
 .input-form .v-field__append-inner {
@@ -275,7 +275,7 @@ table td {
   color: #7A7A7A;
 }
 .input-form .v-field__input::placeholder {
-  color: #7A7A7A;
+  color: #7A7A7A !important;
   opacity: 0.9;
 }
 .v-menu .v-list-item {
@@ -291,7 +291,7 @@ table td {
 }
 .input-form:not(.v-textarea):not(.v-autocomplete),
 .input-form:not(.v-textarea):not(.v-autocomplete) .v-input__slot {
-  height: 34px;
+  height: 32px;
 }
 .v-dialog .v-toolbar__content {
   height: 48px !important
@@ -478,7 +478,7 @@ body .no__hidden_class.row-header .background-triangle-big {
   text-align: right;
 }
 button.v-btn--size-small {
-  height: 30px !important;
+  height: 32px !important;
 }
 button.v-btn--size-small .v-btn__content {
   font-size: 1rem;
@@ -524,3 +524,27 @@ button.v-btn--size-small .v-icon {
     margin: 0 auto !important;
   }
 };
+
+input:autofill,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+input:autofill,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.wrap-login input:autofill,
+.wrap-login input:-webkit-autofill,
+.wrap-login input:-webkit-autofill:hover,
+.wrap-login input:-webkit-autofill:focus,
+.wrap-login input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+}

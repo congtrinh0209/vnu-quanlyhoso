@@ -1,11 +1,7 @@
 <script setup>
-	import { useCookies } from 'vue3-cookies'
-  import { ref, reactive, computed, onMounted } from 'vue'
-  import { useAppStore } from '@/stores/global.js'
+  import { ref, reactive} from 'vue'
 	import { useCrudStore } from '@/stores/formcrud.js'
-  const appStore = useAppStore()
 	const crud = useCrudStore()
-  const { cookies } = useCookies()
 	const props = defineProps({
     mauNhap: {
       type: Object,
@@ -18,11 +14,11 @@
   })
 	const mauNhapForm = reactive(props.mauNhap)
   const dataInputForm = reactive(props.dataInput)
-	const data = reactive({})
+	const data = ref({})
   const validForm = ref(false)
   const emit = defineEmits(['submitForm'])
 	const submit = function (type) {
-		let dataOutput = Object.assign({}, data)
+		let dataOutput = Object.assign({}, data.value)
 		for (let key in mauNhapForm) {
 			let itemConfig = mauNhapForm[key]
 			if (itemConfig.type == 'date' && dataOutput[itemConfig['name']]) {
@@ -42,14 +38,14 @@
 				dataOutput[itemConfig['name']] = dataArray
 			}
 		}
-		console.log('dataFormOutput-2', dataOutput)
+		// console.log('dataFormOutput-2', dataOutput)
     return dataOutput
 	}
 	const initForm = function (type) {
 		for (let key in mauNhapForm) {
 			let itemData = mauNhapForm[key]
 			if (itemData['type'] === 'select' && itemData.hasOwnProperty('api') && itemData['api'] 
-				&& (!mauNhapForm[key]['dataSource'] ||mauNhapForm[key]['dataSource'].length == 0)
+				&& (!mauNhapForm[key]['dataSource'] || mauNhapForm[key]['dataSource'].length == 0)
 			) {
 				crud.loadDataSource(itemData).then(function(result) {
 					let resultData = itemData['responseDataApi'] ? result[itemData['responseDataApi']] : result
@@ -58,38 +54,41 @@
 			}
 		}
 		if (type === 'update' && dataInputForm) {
-			data = dataInputForm
-			for (let key in data) {
-				let filter = data[key]['dataSource'].find(function (item) {
+      
+			data.value = Object.assign({}, dataInputForm)
+      console.log('dataInputForm', data.value)
+			for (let key in data.value) {
+				let filter = mauNhapForm.find(function (item) {
 					return item.name == key
 				})
 				if (filter && filter.type === 'date') {
-					data[key] = dateLocale(data[key])
+					data.value[key] = dateLocale(data.value[key])
 				}
 				if (filter && filter.type === 'money') {
-					data[key] = currency(data[key])
+					data.value[key] = currency(data.value[key])
 				}
 				if (filter && filter.type === 'select' && !filter['multiple']) {
-					data[key] = Array.isArray(data[key]) ? data[key][0] : data[key]
+					data.value[key] = Array.isArray(data.value[key]) ? data.value[key][0] : data.value[key]
 				}
 			}
 			this.$refs.formCrud.resetValidation()
 		} else {
+      console.log('mauNhapForm', mauNhapForm)
 			this.$refs.formCrud.reset()
 			this.$refs.formCrud.resetValidation()
 		}
 	}
 	const formatBirthDate = function (name) {
-		let lengthDate = String(data[name]).trim().length
-		let splitDate = String(data[name]).split('/')
-		let splitDate2 = String(data[name]).split('-')
+		let lengthDate = String(data.value[name]).trim().length
+		let splitDate = String(data.value[name]).split('/')
+		let splitDate2 = String(data.value[name]).split('-')
 		if (lengthDate && lengthDate > 4 && splitDate.length === 3 && splitDate[2]) {
-			data[name] = translateDate(data[name])
+			data.value[name] = translateDate(data.value[name])
 		} else if (lengthDate && lengthDate === 8) {
-			let date = String(data[name])
-			data[name] = date.slice(0,2) + '/' + date.slice(2,4) + '/' + date.slice(4,8)
+			let date = String(data.value[name])
+			data.value[name] = date.slice(0,2) + '/' + date.slice(2,4) + '/' + date.slice(4,8)
 		} else if (splitDate2[1]) {
-			data[name] = dateLocale(data[name])
+			data.value[name] = dateLocale(data.value[name])
 		} else {
 			// data[name] = ''
 		}
@@ -108,7 +107,7 @@
 		if (!date) return ''
 		const [day, month, year] = date.split('/')
 		let ddd = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-		return (new Date(ddd)).toISOString()
+		return (new Date(ddd)).getTime()
 	}
 	const resetForm = function () {
 		this.$refs.formCrud.reset()
@@ -126,7 +125,7 @@
 	}
 
 	defineExpose({
-		initForm, resetForm, resetFormValidation, validateForm, data
+		initForm, resetForm, resetFormValidation, validateForm, submit, data
 	})
 </script>
 

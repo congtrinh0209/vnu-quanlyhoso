@@ -1,11 +1,7 @@
 <script setup>
-	import { useCookies } from 'vue3-cookies'
-  import { ref, reactive, computed, onMounted } from 'vue'
-  import { useAppStore } from '@/stores/global.js'
+  import { ref, reactive} from 'vue'
 	import { timKiemStore } from '@/stores/timkiemnangcao.js'
-  const appStore = useAppStore()
 	const timkiemnangcao = timKiemStore()
-  const { cookies } = useCookies()
 	const props = defineProps({
     mauNhap: {
       type: Object,
@@ -18,10 +14,10 @@
   })
 	const mauNhapSearch = reactive(props.mauNhap)
   const dataInputSearch = reactive(props.dataInput)
-	const data = reactive({})
+	const data = ref({})
   const emit = defineEmits(['submitSearch'])
 	const submitForm = function (type) {
-		let dataOutput = Object.assign({}, data)
+		let dataOutput = Object.assign({}, data.value)
 		for (let key in mauNhapSearch) {
 			let itemConfig = mauNhapSearch[key]
 			if (itemConfig.type == 'date' && dataOutput[itemConfig['name']]) {
@@ -56,39 +52,34 @@
 				}).catch(function(){})
 			}
 		}
-		if (type === 'update' && dataInputSearch) {
-			data = dataInputSearch
-			for (let key in data) {
-				let filter = data[key]['dataSource'].find(function (item) {
-					return item.name == key
-				})
-				if (filter && filter.type === 'date') {
-					data[key] = dateLocale(data[key])
-				}
-				if (filter && filter.type === 'money') {
-					data[key] = currency(data[key])
-				}
-				if (filter && filter.type === 'select' && !filter['multiple']) {
-					data[key] = Array.isArray(data[key]) ? data[key][0] : data[key]
-				}
+		
+		data.value = dataInputSearch
+		for (let key in data.value) {
+			let filter = mauNhapSearch.find(function (item) {
+				return item.name == key
+			})
+			if (filter && filter.type === 'date') {
+				// data.value[key] = formatBirthDate(key)
 			}
-			// this.$refs.formTimKiem.resetValidation()
-		} else {
-			// this.$refs.formTimKiem.reset()
-			// this.$refs.formTimKiem.resetValidation()
+			if (filter && filter.type === 'money') {
+				data.value[key] = currency(data.value[key])
+			}
+			if (filter && filter.type === 'select' && !filter['multiple']) {
+				data.value[key] = Array.isArray(data.value[key]) ? data.value[key][0] : data.value[key]
+			}
 		}
 	}
 	const formatBirthDate = function (name) {
-		let lengthDate = String(data[name]).trim().length
-		let splitDate = String(data[name]).split('/')
-		let splitDate2 = String(data[name]).split('-')
+		let lengthDate = String(data.value[name]).trim().length
+		let splitDate = String(data.value[name]).split('/')
+		let splitDate2 = String(data.value[name]).split('-')
 		if (lengthDate && lengthDate > 4 && splitDate.length === 3 && splitDate[2]) {
-			data[name] = translateDate(data[name])
+			data.value[name] = translateDate(data.value[name])
 		} else if (lengthDate && lengthDate === 8) {
-			let date = String(data[name])
-			data[name] = date.slice(0,2) + '/' + date.slice(2,4) + '/' + date.slice(4,8)
+			let date = String(data.value[name])
+			data.value[name] = date.slice(0,2) + '/' + date.slice(2,4) + '/' + date.slice(4,8)
 		} else if (splitDate2[1]) {
-			data[name] = dateLocale(data[name])
+			data.value[name] = dateLocale(data.value[name])
 		} else {
 			// data[name] = ''
 		}
@@ -107,7 +98,7 @@
 		if (!date) return ''
 		const [day, month, year] = date.split('/')
 		let ddd = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-		return (new Date(ddd)).toISOString()
+		return (new Date(ddd)).getTime()
 	}
 	const resetForm = function () {
 		let vm = this
@@ -132,7 +123,7 @@
 			ref="formTimKiem"
 			lazy-validation
 			class="py-2"
-			style="border: 1px solid #cbc8c8;border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;border-top: 0px;"
+			style="border: 1px solid #025e295e;border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;border-top: 0px;"
 		>
 			<v-row class="mx-0 my-0">
 				<v-col v-for="(item, index) in mauNhap" v-bind:key="index" :class="item['fieldClass']" class="py-0 mb-2">

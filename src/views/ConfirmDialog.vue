@@ -1,9 +1,6 @@
 <script setup>
   import { ref, computed, onMounted } from 'vue'
   import { useAppStore } from '@/stores/global.js'
-  const vFocus = {
-    mounted: (el) => el.focus()
-  }
   const appStore = useAppStore()
   const isShow = computed(() => appStore.getIsShowConfirm)
   const dialog = computed(() => appStore.getDialogConfirm)

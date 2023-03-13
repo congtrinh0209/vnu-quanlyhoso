@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, defineEmits, onMounted, watch } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
 
   const props = defineProps({
     pageInput: {

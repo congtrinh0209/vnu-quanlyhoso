@@ -1,6 +1,6 @@
 <script setup>
   import { useCookies } from 'vue3-cookies'
-  import { ref, reactive, computed, onMounted } from 'vue'
+  import { ref, reactive, computed, onMounted, watch } from 'vue'
   import { useAppStore } from '@/stores/global.js'
   import pagination from '../views/Pagination.vue'
   import TimKiemNangCao from './TimKiemNangCao.vue'
@@ -70,10 +70,10 @@
   ])
   const mauFormCrud = reactive([
     {
-      "name": "tenChienluoc",
-      "title": "Tên chiến lược",
+      "name": "MaSinhVien",
+      "title": "Mã sinh viên",
       "type": "textfield",
-      "fieldClass": "v-col-xs-12 v-col-4",
+      "fieldClass": "v-col-xs-12 v-col-6",
       "placeHolder": "",
       "defaultValue": "",
       "dataType": "",
@@ -84,29 +84,43 @@
       "readonly": false
     },
     {
-      "name": "hienTrang",
-      "title": "Tình trạng",
+      "name": "HoVaTen",
+      "title": "Họ tên",
+      "type": "textfield",
+      "fieldClass": "v-col-xs-12 v-col-6",
+      "placeHolder": "",
+      "defaultValue": "",
+      "dataType": "",
+      "dataSource": "",
+      "autoEvent": "",
+      "required": true,
+      "rules": [],
+      "readonly": false
+    },
+    {
+      "name": "GioiTinh",
+      "title": "Giới tính",
       "type": "select",
       "multiple": false,
-      "itemText": "tenMuc",
-      "itemValue": "maMuc",
-      "fieldClass": "v-col-xs-12 v-col-4",
+      "itemText": "TenMuc",
+      "itemValue": "MaMuc",
+      "fieldClass": "v-col-xs-12 v-col-6",
       "placeHolder": "",
       "defaultValue": "",
       "dataType": "",
       "dataSource": [],
       "autoEvent": "",
-      "api": "/v1/datasharing/dulieudanhmuc/filter?page=0&size=10000&danhMuc_maDanhMuc=HIENTRANGVANBAN",
+      "api": "/v1/datasharing/dulieudanhmuc/filter?page=0&size=10000&danhMuc_maDanhMuc=GIOITINH",
       "responseDataApi": "content",
       "required": true,
       "rules": [],
       "readonly": false
     },
     {
-      "name": "ngayBanHanh",
-      "title": "Thời gian ban hành",
+      "name": "NgaySinh",
+      "title": "Ngày sinh",
       "type": "date",
-      "fieldClass": "v-col-xs-12 v-col-4",
+      "fieldClass": "v-col-xs-12 v-col-6",
       "placeHolder": "ddmmyyyy, dd/mm/yyyy",
       "defaultValue": "",
       "dataType": "",
@@ -134,6 +148,8 @@
   ])
   const advanceSearchReference = ref(null)
   const crudFormReference = ref(null)
+  const dataInputSearch = reactive({})
+  const dataInputCrud = ref({})
   const dataSource = reactive([
     {name: 'Giá trị 1', value: 1},
     {name: 'Giá trị 2', value: 2},
@@ -149,40 +165,32 @@
     {
       sortable: false,
       title: "Họ và tên",
-      align: "left",
-      key: "HoVaTen",
-      class: "th-center"
+      align: "center",
+      key: "HoVaTen"
     },
     {
       sortable: false,
       title: "Mã sinh viên",
-      align: "left",
-      key: "MaSinhVien",
-      class: "th-center",
-      // width: 220,
+      align: "center",
+      key: "MaSinhVien"
     },
     {
       sortable: false,
-      title: "Email",
+      title: "Ngày sinh",
       align: "left",
-      key: "EmailVNU",
-      class: "th-center",
-      // width: 120,
+      key: "NgaySinh"
     },
     {
       sortable: false,
-      title: "Số báo danh",
+      title: "Giới tính",
       align: "left",
-      key: "SoBaoDanh",
-      class: "th-center",
+      key: "GioiTinh"
     },
     {
       sortable: false,
       title: "Thao tác",
       align: "center",
-      key: "thaotac",
-      class: "th-center",
-      // width: 200,
+      key: "thaotac"
     },
   ])
   const listStudent = reactive([
@@ -233,72 +241,11 @@
             "TenMuc": ""
         },
         "GiayToTuyThan": [],
-        "DiaChiThuongTru": {
-            "type": "S_DiaChi",
-            "SoNhaChiTiet": "",
-            "TinhThanh": {
-                "type": "C_TinhThanh",
-                "MaMuc": "",
-                "TenMuc": ""
-            },
-            "QuanHuyen": {
-                "type": "C_QuanHuyen",
-                "MaMuc": "",
-                "TenMuc": ""
-            },
-            "PhuongXa": {
-                "type": "C_PhuongXa",
-                "MaMuc": "",
-                "TenMuc": ""
-            }
-        },
-        "NoiOHienTai": {
-            "type": "S_DiaChi",
-            "SoNhaChiTiet": "",
-            "TinhThanh": {
-                "type": "C_TinhThanh",
-                "MaMuc": "",
-                "TenMuc": ""
-            },
-            "QuanHuyen": {
-                "type": "C_QuanHuyen",
-                "MaMuc": "",
-                "TenMuc": ""
-            },
-            "PhuongXa": {
-                "type": "C_PhuongXa",
-                "MaMuc": "",
-                "TenMuc": ""
-            }
-        },
         "DanhBaLienLac": {
             "type": "S_DanhBaLienLac",
             "ThuDienTu": "",
             "SoDienThoai": "0355620860",
             "SoFax": ""
-        },
-        "AnhCaNhan": {
-            "type": "S_TepDuLieu",
-            "TenTep": "",
-            "DinhDang": "",
-            "KichThuoc": "",
-            "DuLieu": "",
-            "ChuKySo": "",
-            "NgayKySo": null,
-            "NgayGioTao": null,
-            "NgayGioSua": null
-        },
-        "CoQuanDonVi": {
-            "type": "T_CoQuanDonVi",
-            "MaHanhChinh": "QHL",
-            "TenGoi": "Khoa Luật - ĐHQG Hà Nội",
-            "TenTiengAnh": "",
-            "TenVietTat": ""
-        },
-        "TinhTrangCongTac": {
-            "type": "C_TinhTrangCongTac",
-            "MaMuc": null,
-            "TenMuc": null
         },
         "DanhTinhDienTu": [],
         "EmailVNU": "zxt@gmail.com",
@@ -355,7 +302,7 @@
     appStore.SET_SHOWCONFIRM(true)
     let confirm = {
       auth: false,
-      title: 'Xóa cán bộ',
+      title: 'Xóa sinh viên',
       message: 'Bạn có chắc chắn muốn xóa',
       button: {
         yes: 'Có',
@@ -367,12 +314,21 @@
     }
     appStore.SET_CONFIG_CONFIRM_DIALOG(confirm)
   }
-  const showDialog = function () {
+  const showDialog = function (type, data) {
     dialog.value = true
+    console.log('dataItem', data)
+    if (type === 'update') {
+      dataInputCrud.value = data
+    }
     setTimeout(function () {
-      crudFormReference.value.initForm()
+      crudFormReference.value.initForm(type)
     }, 100)
   }
+  const dateLocale = function (dateInput) {
+		if (!dateInput) return ''
+		let date = new Date(dateInput)
+		return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
+	}
   onMounted(() => {
 
   })
@@ -387,8 +343,19 @@
         <div class="triangle-header"></div>
       </v-col>
       <v-spacer></v-spacer>
-      
-      <v-col class="d-flex align-center justify-end py-0 px-0" style="max-width: 200px;margin-top: 3px;">
+      <v-col class="py-0" style="max-width: 500px;">
+        <v-text-field
+          append-inner-icon="mdi-magnify"
+          @click:append-inner="eventClick"
+          @click:prepend-inner="eventClick"
+          placeholder="Tìm kiếm theo từ khóa ..."
+          dense
+          hide-details="auto"
+          class="input-form"
+          clearable
+        ></v-text-field>
+      </v-col>
+      <v-col class="py-0 px-0" style="max-width: 180px;">
         <v-btn
           size="small"
           color="success"
@@ -400,8 +367,69 @@
       </v-col>
     </v-row>
     <div v-if="advanceSearch">
-      <TimKiemNangCao ref="advanceSearchReference" :mauNhap="mauTimKiem" @submitSearch="submitAdvanceSearch"></TimKiemNangCao>
+      <TimKiemNangCao ref="advanceSearchReference" :mauNhap="mauTimKiem" :dataInput="dataInputSearch" @submitSearch="submitAdvanceSearch"></TimKiemNangCao>
     </div>
+
+    <!-- table -->
+    <v-row class="mx-0 mt-3">
+      <v-col align="right" class="py-0 px-0">
+        <v-btn
+          size="small"
+          color="success"
+          prepend-icon="mdi-plus"
+          @click.stop="showDialog" class="mx-0"
+        >
+          Thêm mới
+        </v-btn>
+      </v-col>
+      <v-col cols="12" class="px-0">
+        <v-data-table
+          :headers="headers"
+          :items="listStudent"
+          v-model:items-per-page="itemsPerPage"
+          item-value="PrimKey"
+          hide-default-footer
+          class="table-base"
+          no-data="Không có dữ liệu"
+          :loading="loadingData"
+          loading-text="Đang tải... "
+        >
+
+          <template v-slot:item="{ item, index }">
+            <tr>
+              <td class="align-center" width="70">{{ index + 1 }}</td>
+              <td class="align-left">{{ item.columns.HoVaTen }}</td>
+              <td class="align-right" width="220">{{ item.columns.MaSinhVien }}</td>
+              <td width="220">{{ dateLocale(item.columns.NgaySinh) }}</td>
+              <td width="220">{{ item.columns.GioiTinh.TenMuc }}</td>
+              <td class="align-center" width="150">
+                <div>
+                  <v-tooltip location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon variant="flat" size="small" v-bind="props" class="mr-2" @click.stop="showDialog('update', item.columns)">
+                        <v-icon size="22" color="success">mdi-pencil</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Sửa</span>
+                  </v-tooltip>
+
+                  <v-tooltip location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon variant="flat" size="small" v-bind="props" @click.stop="showConfirm">
+                        <v-icon size="22" color="error">mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Xóa</span>
+                  </v-tooltip>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+        <pagination :pageInput="page" :pageCount="pageCount" :total="total" @changePage="changePage" style="margin-bottom: 50px;"></pagination>
+      </v-col>
+    </v-row>
+
     <v-form
       class="pa-5 px-2"
       ref="formRef"
@@ -552,67 +580,20 @@
         </v-btn>
       </v-col>
     </v-row>
-    <!-- table -->
-    <v-row class="mx-0">
-      <v-col cols="12">
-        <v-data-table
-          :headers="headers"
-          :items="listStudent"
-          v-model:items-per-page="itemsPerPage"
-          item-value="PrimKey"
-          hide-default-footer
-          class="table-base mt-2"
-          no-data="Không có dữ liệu"
-          :loading="loadingData"
-          loading-text="Đang tải... "
-        >
-
-          <template v-slot:item="{ item, index }">
-            <tr>
-              <td class="align-center" width="70">{{ index + 1 }}</td>
-              <td class="align-left">{{ item.columns.HoVaTen }}</td>
-              <td class="align-right" width="120">{{ item.columns.MaSinhVien }}</td>
-              <td width="120">{{ item.columns.EmailVNU }}</td>
-              <td width="120">{{ item.columns.SoBaoDanh }}</td>
-              <td class="align-center" width="150">
-                <div>
-                  <v-tooltip location="top">
-                    <template v-slot:activator="{ props }">
-                      <v-btn icon variant="flat" size="small" v-bind="props" class="mr-2">
-                        <v-icon size="22" color="success">mdi-pencil</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Sửa</span>
-                  </v-tooltip>
-
-                  <v-tooltip location="top">
-                    <template v-slot:activator="{ props }">
-                      <v-btn icon variant="flat" size="small" v-bind="props">
-                        <v-icon size="22" color="error">mdi-close</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Xóa</span>
-                  </v-tooltip>
-                </div>
-              </td>
-            </tr>
-          </template>
-        </v-data-table>
-        <pagination :pageInput="page" :pageCount="pageCount" :total="total" @changePage="changePage" style="margin-bottom: 50px;"></pagination>
-      </v-col>
-    </v-row>
+    
     <!-- dialog -->
     <v-dialog
       max-width="1000"
       v-model="dialog"
       persistent
+      absolute
     >
       <v-card>
         <v-toolbar
           dark
           color="success" class="px-3"
         >
-          <v-toolbar-title>Thêm mới cán bộ</v-toolbar-title>
+          <v-toolbar-title>Thêm mới sinh viên</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn variant="flat" size="small" icon color="success" @click="dialog = false" >
@@ -622,7 +603,7 @@
         </v-toolbar>
         <v-card-text class="mt-2 px-3">
           <!-- Content dialog -->
-          <FormCRUD ref="crudFormReference" :mauNhap="mauFormCrud"></FormCRUD>
+          <FormCRUD ref="crudFormReference" :mauNhap="mauFormCrud" :dataInput="dataInputCrud"></FormCRUD>
         </v-card-text>
         <v-card-actions class="justify-end pb-3 px-3">
           <v-btn

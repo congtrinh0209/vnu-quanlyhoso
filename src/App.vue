@@ -14,7 +14,7 @@ const { cookies } = useCookies()
 const { name } = useDisplay()
 const onResize = function () {
   let breakpointName = name.value
-  console.log('breakpointName', breakpointName)
+  // console.log('breakpointName', breakpointName)
   appStore.SET_BREAKPOINTNAME(breakpointName)
 }
 onMounted(() => {
@@ -31,8 +31,8 @@ onMounted(() => {
 
 <template>
   <v-app v-resize="onResize" class="wrap-app">
-    <VueConfirmDialog></VueConfirmDialog>
     <router-view></router-view>
+    <VueConfirmDialog></VueConfirmDialog>
   </v-app>
 </template>
 
